@@ -29,6 +29,7 @@ class MapController extends GetxController {
     return _buildingFloors[i - 1];
   }
 
+  // Установить тип выбранного пункта меню
   void setTypeMenuItem(int i) async {
     if (_building == 5) {
       _building = 4;
@@ -38,7 +39,13 @@ class MapController extends GetxController {
       );
       _building = 5;
     }
-    _floor = 1;
+    // _floor = 1;
+    if (_searchRoomNumber == 0) {
+      _floor = 1;
+    } else {
+      int requestedFloor = ((_searchRoomNumber / 100) % 10).toInt();
+      _floor = requestedFloor;
+    }
     _typeMenuItem = i;
     searchImage(false);
   }
@@ -48,8 +55,17 @@ class MapController extends GetxController {
     searchImage(false);
   }
 
-  void chengeFloor(int i) {
-    _floor = i;
+  Future<void> chengeFloor(int i, {int reqBuilding = -1}) async {
+    if (reqBuilding != -1 &&
+        getFloors(_building).length > getFloors(reqBuilding).length) {
+      _floor = 1;
+      await Future.delayed(
+        const Duration(milliseconds: 800),
+      );
+      _floor = i;
+    } else {
+      _floor = i;
+    }
     searchImage(false);
   }
 
@@ -65,22 +81,28 @@ class MapController extends GetxController {
   int _searchRoomNumber = 0;
   int get searchRoomNumber => _searchRoomNumber;
 
+  // Установить номер комнаты для поиска
   void setSearchRoomNumber(int room) {
     _searchRoomNumber = room;
+    _typeMenuItem = 0;
   }
 
-  void searchImage(bool chengePage) {
+  void searchImage(bool chengePage) async {
+    // Извлечь информацию об этаже и корпусе из номера комнаты для поиска
     int requestedFloor = ((_searchRoomNumber / 100) % 10).toInt();
     int requestedBuilding = (_searchRoomNumber) ~/ 1000;
 
+    // Проверить, являются ли запрошенный этаж и корпус допустимыми, и обновить их при необходимости
     if (requestedBuilding >= 1 && requestedBuilding <= 6 && chengePage) {
       if (_buildingFloors[requestedBuilding - 1].contains(requestedFloor)) {
-        _floor = requestedFloor;
+        await chengeFloor(requestedFloor, reqBuilding: requestedBuilding);
+        // _floor = requestedFloor;
         _building = requestedBuilding;
         update();
       }
     }
 
+    // Специальный случай для определенного диапазона номеров комнат
     if (_searchRoomNumber >= 6103 && _searchRoomNumber <= 6110) {
       requestedFloor = 0;
     }

@@ -1,17 +1,38 @@
+import 'dart:math';
+
 import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import 'map_controller.dart';
 
 // Карта вуза
 
-class MapPage extends StatelessWidget {
+class MapPage extends StatefulWidget {
   MapPage({Key? key}) : super(key: key);
 
+  @override
+  State<MapPage> createState() => _MapPageState();
+}
+
+class _MapPageState extends State<MapPage> {
   final roomController = TextEditingController();
+
+  late PackageInfo packageInfo;
+
+  void getInfo() async {
+    packageInfo = await PackageInfo.fromPlatform();
+  }
+
+  @override
+  void initState() {
+    getInfo();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +41,43 @@ class MapPage extends StatelessWidget {
         builder: (controller) {
           return Scaffold(
             resizeToAvoidBottomInset: false,
+            appBar: AppBar(
+              centerTitle: false,
+              title: const Text('NNTU Map'),
+              actions: [
+                IconButton(
+                  onPressed: () {
+                    showDialog(
+                      barrierColor: Colors.black38,
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('О приложении'),
+                        content: SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              Text(
+                                'Данное приложение было разработано в качестве временной замены приложения НГТУ.\nОно не является официальным и может содержать в себе баги и прочие ошибки.\nРазработчик не несет ответственности за какие-либо неполадки.',
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                              Text(
+                                "Версия: ${packageInfo.version} (${packageInfo.buildNumber})",
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                              const Divider(),
+                              const InkWell(
+                                onTap: _launchUrl,
+                                child: Text('Developed by VVA Dev'),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.info_outline),
+                ),
+              ],
+            ),
             body: Stack(
               children: [
                 Container(
@@ -62,18 +120,27 @@ class MapPage extends StatelessWidget {
                         hintText: 'Введите аудиторию..',
                         // hintStyle: Theme.of(context).textTheme.titleMedium,
                         suffixIcon: GestureDetector(
-                          onTap: () {
-                            FocusScope.of(context).requestFocus(FocusNode());
-                            if (roomController.text != '') {
-                              controller.setSearchRoomNumber(
-                                  int.parse(roomController.text));
-                              controller.searchImage(true);
-                            }
-                          },
-                          child: const Icon(
-                            Icons.search_outlined,
-                          ),
-                        ),
+                            onTap: () {
+                              FocusScope.of(context).requestFocus(FocusNode());
+                              if (roomController.text != '') {
+                                if (controller.searchRoomNumber !=
+                                    int.parse(roomController.text)) {
+                                  controller.setSearchRoomNumber(
+                                      int.parse(roomController.text));
+                                  controller.searchImage(true);
+                                } else {
+                                  roomController.text = '';
+                                  controller.setSearchRoomNumber(0);
+                                  controller.searchImage(false);
+                                }
+                              }
+                            },
+                            child: (controller.searchRoomNumber !=
+                                    int.tryParse(roomController.text))
+                                ? const Icon(
+                                    Icons.search_outlined,
+                                  )
+                                : const Icon(Icons.close)),
                       ),
                       onSubmitted: (value) {
                         FocusScope.of(context).requestFocus(FocusNode());
@@ -84,6 +151,9 @@ class MapPage extends StatelessWidget {
                         }
                       },
                       keyboardType: TextInputType.number,
+                      onTapOutside: (event) {
+                        FocusScope.of(context).requestFocus(FocusNode());
+                      },
                     ),
                   ),
                 ),
@@ -97,19 +167,22 @@ class MapPage extends StatelessWidget {
                       children: [
                         AnimatedToggleSwitch<String>.size(
                           indicatorSize: const Size.fromWidth(70),
+                          selectedIconScale: sqrt(1),
                           current:
                               controller.typeMenuItem == 0 ? 'Этаж' : 'Корпус',
                           values: const ['Этаж', 'Корпус'],
-                          indicatorBorderRadius: BorderRadius.circular(13.0),
                           iconOpacity: 1,
-                          borderRadius: BorderRadius.circular(15.0),
-                          indicatorBorder: Border.all(
-                              color: Theme.of(context).colorScheme.primary,
-                              strokeAlign: BorderSide.strokeAlignCenter),
-                          borderColor: Theme.of(context).colorScheme.primary,
+                          style: ToggleStyle(
+                            indicatorBorderRadius: BorderRadius.circular(13.0),
+                            borderRadius: BorderRadius.circular(15.0),
+                            indicatorBorder: Border.all(
+                                color: Theme.of(context).colorScheme.primary,
+                                strokeAlign: BorderSide.strokeAlignCenter),
+                            borderColor: Theme.of(context).colorScheme.primary,
+                            indicatorColor: Theme.of(context).hoverColor,
+                          ),
                           borderWidth: 1,
-                          indicatorColor: Theme.of(context).hoverColor,
-                          iconBuilder: (value, size) {
+                          iconBuilder: (value) {
                             return Center(
                               child: Text(
                                 value.toString(),
@@ -140,20 +213,24 @@ class MapPage extends StatelessWidget {
                                   current: controller.floor,
                                   values:
                                       controller.getFloors(controller.building),
-                                  indicatorBorderRadius:
-                                      BorderRadius.circular(13.0),
+                                  style: ToggleStyle(
+                                    indicatorBorderRadius:
+                                        BorderRadius.circular(13.0),
+                                    borderRadius: BorderRadius.circular(15.0),
+                                    indicatorBorder: Border.all(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                        strokeAlign:
+                                            BorderSide.strokeAlignCenter),
+                                    borderColor:
+                                        Theme.of(context).colorScheme.primary,
+                                    indicatorColor:
+                                        Theme.of(context).hoverColor,
+                                  ),
                                   iconOpacity: 1,
-                                  borderRadius: BorderRadius.circular(15.0),
-                                  indicatorBorder: Border.all(
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                      strokeAlign:
-                                          BorderSide.strokeAlignCenter),
-                                  borderColor:
-                                      Theme.of(context).colorScheme.primary,
                                   borderWidth: 1,
-                                  indicatorColor: Theme.of(context).hoverColor,
-                                  iconBuilder: (value, size) {
+                                  iconBuilder: (value) {
                                     return Center(
                                       child: Text(
                                         value.toString(),
@@ -175,6 +252,7 @@ class MapPage extends StatelessWidget {
                                     );
                                   },
                                   onChanged: (i) {
+                                    print(i);
                                     controller.chengeFloor(i);
                                   },
                                 ),
@@ -183,20 +261,24 @@ class MapPage extends StatelessWidget {
                                 child: AnimatedToggleSwitch<int>.size(
                                   current: controller.building,
                                   values: controller.buildings,
-                                  indicatorBorderRadius:
-                                      BorderRadius.circular(13.0),
+                                  style: ToggleStyle(
+                                    indicatorBorderRadius:
+                                        BorderRadius.circular(13.0),
+                                    borderRadius: BorderRadius.circular(15.0),
+                                    indicatorBorder: Border.all(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                        strokeAlign:
+                                            BorderSide.strokeAlignCenter),
+                                    borderColor:
+                                        Theme.of(context).colorScheme.primary,
+                                    indicatorColor:
+                                        Theme.of(context).hoverColor,
+                                  ),
                                   iconOpacity: 1,
-                                  borderRadius: BorderRadius.circular(15.0),
-                                  indicatorBorder: Border.all(
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                      strokeAlign:
-                                          BorderSide.strokeAlignCenter),
-                                  borderColor:
-                                      Theme.of(context).colorScheme.primary,
                                   borderWidth: 1,
-                                  indicatorColor: Theme.of(context).hoverColor,
-                                  iconBuilder: (value, size) {
+                                  iconBuilder: (value) {
                                     return Center(
                                       child: Text(
                                         value.toString(),
@@ -230,5 +312,14 @@ class MapPage extends StatelessWidget {
             ),
           );
         });
+  }
+}
+
+Future<void> _launchUrl() async {
+  if (!await launchUrlString(
+    'https://vvadev.ru',
+    mode: LaunchMode.externalApplication,
+  )) {
+    throw Exception('Could not launch https://vvadev.ru');
   }
 }
