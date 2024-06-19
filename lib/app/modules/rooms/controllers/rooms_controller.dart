@@ -1,23 +1,87 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:nntu_map/app/modules/rooms/rooms_model.dart';
+import 'package:hive/hive.dart';
+import 'package:http/http.dart' as http;
 
 class RoomsController extends GetxController {
-  //TODO: Implement RoomsController
+  static const String currentFormatVersion = 'v1';
+  final String url =
+      "https://vvadev.ru/files/rooms.json"; // Укажите URL вашего сервера
 
-  final count = 0.obs;
+  List<RoomData> roomsData = [];
+  bool isLoading = true;
+  bool hasError = false;
+
   @override
   void onInit() {
     super.onInit();
+    fetchRoomsData();
   }
 
-  @override
-  void onReady() {
-    super.onReady();
+  static Future<void> deleteAllData() async {
+    var box = await Hive.openBox('roomsBox');
+    await box.clear();
   }
 
-  @override
-  void onClose() {
-    super.onClose();
+  Future<void> fetchRoomsData() async {
+    try {
+      var box = await Hive.openBox('roomsBox');
+      var storedData = box.get('roomsData');
+      var storedVersion = box.get('version', defaultValue: 0);
+
+      if (storedData != null) {
+        // Данные есть в базе, загружаем их
+        MainRoomsModel storedModel =
+            MainRoomsModel.fromJson(jsonDecode(storedData));
+        roomsData = storedModel.getRoomsByVersion(currentFormatVersion);
+
+        fetchAndSaveDataFromServer(storedVersion);
+      } else {
+        // Данных нет, пробуем загрузить с сервера
+        await fetchAndSaveDataFromServer(storedVersion);
+      }
+    } catch (e) {
+      print(e);
+      hasError = true;
+    } finally {
+      isLoading = false;
+      update();
+    }
   }
 
-  void increment() => count.value++;
+  Future<void> fetchAndSaveDataFromServer(int storedVersion) async {
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        var jsonResponse = jsonDecode(response.body);
+        MainRoomsModel newData = MainRoomsModel.fromJson(jsonResponse);
+
+        if (newData.version > storedVersion) {
+          // Удаляем старые данные и сохраняем новые
+          var box = await Hive.openBox('roomsBox');
+          await box.clear();
+          await box.put('roomsData', jsonEncode(newData.toJson()));
+          await box.put('version', newData.version);
+          roomsData = newData.getRoomsByVersion(currentFormatVersion);
+
+          Get.snackbar(
+            'Данные обновлены',
+            'Новые данные успешно загружены с сервера',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.greenAccent.withOpacity(0.8),
+          );
+        }
+      } else {
+        hasError = true;
+      }
+    } catch (e) {
+      print(e);
+      // hasError = true;
+    } finally {
+      update();
+    }
+  }
 }
