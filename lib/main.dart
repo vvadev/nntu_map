@@ -1,23 +1,16 @@
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:nntu_map/map_page/map_page.dart';
+
+import 'package:get/get.dart';
+import 'package:nntu_map/app/modules/layout/layout_bindings.dart';
+
+import 'app/routes/app_pages.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
-    return MaterialApp(
+  runApp(
+    GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'NNTU Map',
       theme: FlexThemeData.light(
@@ -68,7 +61,16 @@ class MyApp extends StatelessWidget {
         // fontFamily: GoogleFonts.notoSans().fontFamily,
       ),
       themeMode: ThemeMode.dark,
-      home: SafeArea(child: MapPage()),
-    );
-  }
+      initialRoute: AppPages.INITIAL,
+      getPages: AppPages.routes,
+      initialBinding: NavBinding(),
+      builder: (context, child) {
+        SystemChrome.setPreferredOrientations([
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown,
+        ]);
+        return child ?? const Scaffold();
+      },
+    ),
+  );
 }
