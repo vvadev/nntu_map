@@ -1,5 +1,4 @@
 import 'package:crystal_navigation_bar/crystal_navigation_bar.dart';
-import 'package:double_back_to_close_app/double_back_to_close_app.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -8,8 +7,9 @@ import 'nav_controller.dart';
 class MainLayout extends StatelessWidget {
   final Widget child;
   final PreferredSizeWidget? appBar;
+  final bool? enableSafeArea;
 
-  MainLayout({required this.child, this.appBar});
+  MainLayout({required this.child, this.appBar, this.enableSafeArea = false});
 
   @override
   Widget build(BuildContext context) {
@@ -21,12 +21,8 @@ class MainLayout extends StatelessWidget {
           return Scaffold(
             appBar: appBar,
             resizeToAvoidBottomInset: false,
-            body: DoubleBackToCloseApp(
-              snackBar:
-                  const SnackBar(content: Text('Нажмите еще раз для выхода')),
-              child: SafeArea(child: child),
-            ),
             extendBody: true,
+            body: enableSafeArea! ? SafeArea(child: child) : child,
             bottomNavigationBar: CrystalNavigationBar(
               currentIndex: navController.getCurrentIndex(),
               onTap: (index) {

@@ -8,17 +8,26 @@ import 'package:http/http.dart' as http;
 
 class RoomsController extends GetxController {
   static const String currentFormatVersion = 'v1';
-  final String url =
-      "https://vvadev.ru/files/rooms.json"; // Укажите URL вашего сервера
+  final String url = "https://vvadev.ru/files/rooms.json";
 
   List<RoomData> roomsData = [];
+  List<RoomData> filteredRoomsData = [];
   bool isLoading = true;
   bool hasError = false;
+
+  final TextEditingController searchController = TextEditingController();
 
   @override
   void onInit() {
     super.onInit();
+    searchController.addListener(_onSearchChanged);
     fetchRoomsData();
+  }
+
+  @override
+  void onClose() {
+    searchController.dispose();
+    super.onClose();
   }
 
   static Future<void> deleteAllData() async {
@@ -37,6 +46,7 @@ class RoomsController extends GetxController {
         MainRoomsModel storedModel =
             MainRoomsModel.fromJson(jsonDecode(storedData));
         roomsData = storedModel.getRoomsByVersion(currentFormatVersion);
+        filteredRoomsData = roomsData;
 
         fetchAndSaveDataFromServer(storedVersion);
       } else {
@@ -56,7 +66,7 @@ class RoomsController extends GetxController {
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
-        var jsonResponse = jsonDecode(response.body);
+        var jsonResponse = jsonDecode(utf8.decode(response.bodyBytes));
         MainRoomsModel newData = MainRoomsModel.fromJson(jsonResponse);
 
         if (newData.version > storedVersion) {
@@ -66,6 +76,9 @@ class RoomsController extends GetxController {
           await box.put('roomsData', jsonEncode(newData.toJson()));
           await box.put('version', newData.version);
           roomsData = newData.getRoomsByVersion(currentFormatVersion);
+          filteredRoomsData = roomsData;
+
+          print(jsonResponse);
 
           Get.snackbar(
             'Данные обновлены',
@@ -83,5 +96,14 @@ class RoomsController extends GetxController {
     } finally {
       update();
     }
+  }
+
+  void _onSearchChanged() {
+    final query = searchController.text.toLowerCase();
+    filteredRoomsData = roomsData.where((room) {
+      return room.name.toLowerCase().contains(query) ||
+          room.room.toString().contains(query);
+    }).toList();
+    update();
   }
 }
