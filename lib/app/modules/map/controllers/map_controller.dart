@@ -250,9 +250,21 @@ class MapController extends GetxController {
     return 'assets/navigate/$_building/${_floor}level non-active.png';
   }
 
+  Future<void> getArguments() async {
+    // try {
+    final argRoom = Get.arguments;
+    if (argRoom != null) {
+      roomController.text = argRoom[0].toString();
+      setSearchRoomNumber(argRoom[0]);
+      searchImage(true);
+    }
+    // } catch (e) {}
+  }
+
   @override
   void onInit() {
     getInfo();
+    getArguments();
     super.onInit();
   }
 

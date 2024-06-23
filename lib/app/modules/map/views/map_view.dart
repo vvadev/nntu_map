@@ -18,6 +18,7 @@ class MapView extends GetView<MapController> {
         init: MapController(),
         builder: (controller) {
           return MainLayout(
+            enableSafeArea: true,
             child: Stack(
               children: [
                 Container(

@@ -3,12 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import 'package:nntu_map/app/modules/layout/layout_bindings.dart';
+import 'package:nntu_map/app/modules/layout/nav_controller.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'app/routes/app_pages.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final appDocumentDirectory = await getApplicationDocumentsDirectory();
+  Hive.init(appDocumentDirectory.path);
+  Get.put(NavController());
   runApp(
     GetMaterialApp(
       debugShowCheckedModeBanner: false,
@@ -63,7 +69,7 @@ void main() {
       themeMode: ThemeMode.dark,
       initialRoute: AppPages.INITIAL,
       getPages: AppPages.routes,
-      initialBinding: NavBinding(),
+      // initialBinding: NavBinding(),
       builder: (context, child) {
         SystemChrome.setPreferredOrientations([
           DeviceOrientation.portraitUp,

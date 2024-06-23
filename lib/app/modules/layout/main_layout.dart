@@ -7,8 +7,9 @@ import 'nav_controller.dart';
 class MainLayout extends StatelessWidget {
   final Widget child;
   final PreferredSizeWidget? appBar;
+  final bool? enableSafeArea;
 
-  MainLayout({required this.child, this.appBar});
+  MainLayout({required this.child, this.appBar, this.enableSafeArea = false});
 
   @override
   Widget build(BuildContext context) {
@@ -16,12 +17,12 @@ class MainLayout extends StatelessWidget {
 
     return GetBuilder<NavController>(
         init: NavController(),
-        builder: (context) {
+        builder: (controller) {
           return Scaffold(
             appBar: appBar,
             resizeToAvoidBottomInset: false,
-            body: SafeArea(child: child),
             extendBody: true,
+            body: enableSafeArea! ? SafeArea(child: child) : child,
             bottomNavigationBar: CrystalNavigationBar(
               currentIndex: navController.getCurrentIndex(),
               onTap: (index) {

@@ -35,17 +35,22 @@ class NavController extends GetxController {
   void changePage(int index) {
     switch (index) {
       case 0:
-        Get.toNamed(Routes.ROOMS);
+        Get.offAllNamed(Routes.ROOMS);
         handleRouteChanged(Routes.ROOMS);
         break;
       case 1:
-        Get.toNamed(Routes.MAP);
+        Get.offAllNamed(Routes.MAP);
         handleRouteChanged(Routes.MAP);
         break;
       case 2:
-        Get.toNamed(Routes.APPS);
+        Get.offAllNamed(Routes.APPS);
         handleRouteChanged(Routes.APPS);
         break;
     }
+  }
+
+  void changePageByString(String route, [dynamic arguments]) {
+    Get.offAllNamed(route, arguments: arguments);
+    handleRouteChanged(route);
   }
 }
