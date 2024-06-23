@@ -16,13 +16,6 @@ class RoomsView extends GetView<RoomsController> {
       appBar: AppBar(
         title: const Text("Важные места"),
         centerTitle: false,
-        actions: [
-          IconButton(
-              onPressed: () {
-                RoomsController.deleteAllData();
-              },
-              icon: const Icon(Icons.delete))
-        ],
       ),
       child: GetBuilder<RoomsController>(
         init: RoomsController(),
