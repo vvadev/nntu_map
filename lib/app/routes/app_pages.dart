@@ -6,13 +6,15 @@ import '../modules/map/bindings/map_binding.dart';
 import '../modules/map/views/map_view.dart';
 import '../modules/rooms/bindings/rooms_binding.dart';
 import '../modules/rooms/views/rooms_view.dart';
+import '../modules/settings/bindings/settings_binding.dart';
+import '../modules/settings/views/settings_view.dart';
 
 part 'app_routes.dart';
 
 class AppPages {
   AppPages._();
 
-  static const INITIAL = Routes.MAP;
+  static const INITIAL = Routes.SETTINGS;
 
   static final routes = [
     GetPage(
@@ -32,6 +34,11 @@ class AppPages {
       page: () => const RoomsView(),
       binding: RoomsBinding(),
       transition: Transition.noTransition,
+    ),
+    GetPage(
+      name: _Paths.SETTINGS,
+      page: () => const SettingsView(),
+      binding: SettingsBinding(),
     ),
   ];
 }
