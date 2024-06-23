@@ -33,6 +33,12 @@ class RoomsController extends GetxController {
   static Future<void> deleteAllData() async {
     var box = await Hive.openBox('roomsBox');
     await box.clear();
+    Get.snackbar(
+      '[DEBUG]',
+      'Данные аудиторий удалены',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.redAccent.withOpacity(0.8),
+    );
   }
 
   Future<void> fetchRoomsData() async {
@@ -77,8 +83,6 @@ class RoomsController extends GetxController {
           await box.put('version', newData.version);
           roomsData = newData.getRoomsByVersion(currentFormatVersion);
           filteredRoomsData = roomsData;
-
-          print(jsonResponse);
 
           Get.snackbar(
             'Данные обновлены',
