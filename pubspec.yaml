@@ -29,7 +29,8 @@ dev_dependencies:
     sdk: flutter
 
 flutter: 
-  assets: 
+  assets:
+    - assets/icon.png 
     - assets/navigate/1/
     - assets/navigate/2/
     - assets/navigate/3/

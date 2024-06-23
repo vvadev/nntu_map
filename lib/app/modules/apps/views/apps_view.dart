@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:nntu_map/app/modules/layout/main_layout.dart';
+import 'package:nntu_map/app/routes/app_pages.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../controllers/apps_controller.dart';
@@ -51,12 +52,12 @@ List options = [
   _AppsItemClass(
       title: 'Настройки',
       icon: Icons.settings_outlined,
-      route: '/settings',
+      route: Routes.SETTINGS,
       color: Colors.grey),
   _AppsItemClass(
       title: 'О\nприложении',
       icon: Icons.info_outline,
-      route: '/about',
+      route: Routes.ABOUT,
       color: Colors.cyan),
 ];
 
@@ -74,7 +75,7 @@ class AppsItemWidget extends StatelessWidget {
         if (layout.route.contains('https://')) {
           launchUrlString(layout.route);
         } else {
-          // Get.toNamed(layout.route);
+          Get.toNamed(layout.route);
         }
       },
       child: Card(
