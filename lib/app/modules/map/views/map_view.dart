@@ -32,6 +32,15 @@ class MapView extends GetView<MapController> {
                         const BoxDecoration(color: Colors.transparent),
                     imageProvider: AssetImage(controller.imageURL),
                     enablePanAlways: true,
+                    errorBuilder: (context, error, stackTrace) {
+                      return SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.height,
+                        child: const Center(
+                          child: Text('Аудитория не найдена'),
+                        ),
+                      );
+                    },
                   ),
                 ),
                 Positioned(
