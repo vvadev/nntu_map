@@ -59,6 +59,11 @@ List options = [
       icon: Icons.info_outline,
       route: Routes.ABOUT,
       color: Colors.cyan),
+  _AppsItemClass(
+      title: 'Поддержать\nпроект',
+      icon: Icons.payments_outlined,
+      route: 'https://pay.cloudtips.ru/p/1adcfd32',
+      color: Colors.greenAccent),
 ];
 
 class AppsItemWidget extends StatelessWidget {
