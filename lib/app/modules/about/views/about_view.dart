@@ -54,18 +54,18 @@ class AboutView extends GetView<AboutController> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Полезные ссылки'),
-                    // ListTile(
-                    //   leading: Icon(Icons.launch_outlined),
-                    //   title: Text('Группа приложения'),
-                    //   onTap: () {
-                    //     launchUrlString(
-                    //       '',
-                    //       mode: LaunchMode.externalApplication,
-                    //     );
-                    //   },
-                    // ),
                     ListTile(
                       leading: Icon(Icons.launch_outlined),
+                      title: Text('Группа приложения'),
+                      onTap: () {
+                        launchUrlString(
+                          'https://t.me/+hmtX4v-M6Uw3Njhi',
+                          mode: LaunchMode.externalApplication,
+                        );
+                      },
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.file_open_outlined),
                       title: Text('Политика конфиденциальности'),
                       onTap: () {
                         launchUrlString(
@@ -75,7 +75,7 @@ class AboutView extends GetView<AboutController> {
                       },
                     ),
                     ListTile(
-                      leading: Icon(Icons.launch_outlined),
+                      leading: Icon(Icons.people_outline),
                       title: Text('Разработчик'),
                       onTap: () {
                         launchUrlString(
