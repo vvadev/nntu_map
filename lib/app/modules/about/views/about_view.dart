@@ -56,7 +56,17 @@ class AboutView extends GetView<AboutController> {
                     Text('Полезные ссылки'),
                     ListTile(
                       leading: Icon(Icons.launch_outlined),
-                      title: Text('Группа приложения'),
+                      title: Text('Группа приложения ВК'),
+                      onTap: () {
+                        launchUrlString(
+                          'https://vk.com/nntu_apps',
+                          mode: LaunchMode.externalApplication,
+                        );
+                      },
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.launch_outlined),
+                      title: Text('Группа приложения Telegram'),
                       onTap: () {
                         launchUrlString(
                           'https://t.me/+hmtX4v-M6Uw3Njhi',

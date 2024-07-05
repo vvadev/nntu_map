@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:nntu_map/app/modules/layout/layout_bindings.dart';
+import 'package:nntu_map/app/core/controllers/theme_controller.dart';
 import 'package:nntu_map/app/modules/layout/nav_controller.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -15,8 +15,19 @@ void main() async {
   final appDocumentDirectory = await getApplicationDocumentsDirectory();
   Hive.init(appDocumentDirectory.path);
   Get.put(NavController());
-  runApp(
-    GetMaterialApp(
+  Get.put<ThemeController>(ThemeController());
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    ThemeController.to.initHive();
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'NNTU Map',
       theme: FlexThemeData.light(
@@ -66,7 +77,7 @@ void main() async {
         // To use the Playground font, add GoogleFonts package and uncomment
         // fontFamily: GoogleFonts.notoSans().fontFamily,
       ),
-      themeMode: ThemeMode.dark,
+      themeMode: ThemeMode.system,
       initialRoute: AppPages.INITIAL,
       getPages: AppPages.routes,
       // initialBinding: NavBinding(),
@@ -77,6 +88,6 @@ void main() async {
         ]);
         return child ?? const Scaffold();
       },
-    ),
-  );
+    );
+  }
 }
